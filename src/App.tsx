@@ -2,6 +2,7 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import type { JSX } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import type { ForceGraphMethods, NodeObject, LinkObject } from "react-force-graph-2d";
+import { motion } from "framer-motion";
 import {
   forceCollide,
   forceManyBody,
@@ -21,6 +22,8 @@ type MyNode = {
   __r?: number;
   x?: number;
   y?: number;
+  __baseX?: number;
+  __baseY?: number;
 };
 
 type MyLink = {
@@ -36,14 +39,14 @@ const initialData = {
     { id: "F3", name: "NSW", type: "filiale", r: 45 },
 
     // Partenaires autour
-    { id: "P1", name: "Boost Aerospace", type: "partenaire", r: 30, x: 0, y: 350 },
-    { id: "P2", name: "GetVocal", type: "partenaire", r: 30, x: 250, y: 300 },
-    { id: "P3", name: "Zama", type: "partenaire", r: 30, x: -250, y: 300 },
-    { id: "P4", name: "Zozio", type: "partenaire", r: 30, x: 400, y: -150 },
-    { id: "P5", name: "Ekitia", type: "partenaire", r: 30, x: -400, y: -150 },
-    { id: "P6", name: "Nicomatic Sénégal", type: "partenaire", r: 30, x: 0, y: -350 },
-    { id: "P7", name: "Accurate", type: "partenaire", r: 30, x: 300, y: -300 },
-    { id: "P8", name: "WearTronic", type: "partenaire", r: 30, x: -300, y: -300 },
+    { id: "P1", name: "Boost Aerospace", type: "partenaire", r: 30 },
+    { id: "P2", name: "GetVocal", type: "partenaire", r: 30 },
+    { id: "P3", name: "Zama", type: "partenaire", r: 30 },
+    { id: "P4", name: "Zozio", type: "partenaire", r: 30 },
+    { id: "P5", name: "Ekitia", type: "partenaire", r: 30 },
+    { id: "P6", name: "Nicomatic Sénégal", type: "partenaire", r: 30 },
+    { id: "P7", name: "Accurate", type: "partenaire", r: 30 },
+    { id: "P8", name: "WearTronic", type: "partenaire", r: 30 },
   ] as MyNode[],
 
   links: [
@@ -62,10 +65,7 @@ const initialData = {
     { source: "F3", target: "P8" },
     { source: "F3", target: "F1" },
 
-    // Connexions partenaires
-   
     { source: "P5", target: "P6" },
-    { source: "P7", target: "P8" },
   ] as MyLink[],
 };
 
@@ -76,7 +76,7 @@ export default function App(): JSX.Element {
   const [selectedNode, setSelectedNode] = useState<MyNode | null>(null);
   const [time, setTime] = useState<number>(0);
 
-  // animation "respiration"
+  // Animation "respiration"
   useEffect(() => {
     let mounted = true;
     const raf = (t: number) => {
@@ -90,16 +90,19 @@ export default function App(): JSX.Element {
       cancelAnimationFrame(id);
     };
   }, []);
-  useEffect(() => {
-  const radius = 350;
-  const partners = data.nodes.filter(n => n.type === "partenaire");
-  partners.forEach((p, i) => {
-    const angle = (i / partners.length) * 2 * Math.PI;
-    p.x = radius * Math.cos(angle);
-    p.y = radius * Math.sin(angle);
-  });
-}, [data]);
 
+  // Placement circulaire des partenaires
+  useEffect(() => {
+    const radius = 350;
+    const partners = data.nodes.filter(n => n.type === "partenaire");
+    partners.forEach((p, i) => {
+      const angle = (i / partners.length) * 2 * Math.PI;
+      p.x = radius * Math.cos(angle);
+      p.y = radius * Math.sin(angle);
+    });
+  }, [data]);
+
+  // Configuration des forces
   const configureForces = useCallback(() => {
     const fg = fgRef.current as any;
     if (!fg) return;
@@ -107,19 +110,10 @@ export default function App(): JSX.Element {
     try {
       fg.d3Force("charge", forceManyBody().strength(-550));
       fg.d3Force("center", forceCenter());
-
-      // filiales attirées vers le centre, partenaires vers leur x/y init
       fg.d3Force("x", forceX<MyNode>().strength(0.03));
       fg.d3Force("y", forceY<MyNode>().strength(0.03));
-      fg.d3Force(
-        "collide",
-        forceCollide<MyNode>().radius((d: any) => (d.r ?? 12) + 45).iterations(3)
-      );
-      fg.d3Force(
-        "link",
-        forceLink<MyNode, MyLink>().id((d) => d.id).distance(220)
-      );
-      
+      fg.d3Force("collide", forceCollide<MyNode>().radius((d: any) => (d.r ?? 12) + 45).iterations(3));
+      fg.d3Force("link", forceLink<MyNode, MyLink>().id((d) => d.id).distance(220));
     } catch (err) {
       console.warn("Force config issue:", err);
     }
@@ -129,88 +123,143 @@ export default function App(): JSX.Element {
     configureForces();
   }, [configureForces]);
 
-  // zoom et placement fluide
+  // Zoom auto initial
   useEffect(() => {
     const fg = fgRef.current;
     if (fg) setTimeout(() => fg.zoomToFit(1200, 80), 800);
   }, []);
-// Effet organique flottant
-useEffect(() => {
-  let mounted = true;
-  const raf = (t: number) => {
-    if (!mounted) return;
 
-    const fg: any = fgRef.current;
-    if (fg) {
-      const nodes: MyNode[] = fg.graphData().nodes as any;
-      const amp = 0.5; // amplitude du flottement
-      const speed = 0.002; // vitesse du flottement
+  // Effet organique flottant (léger mouvement interne des nœuds)
+  useEffect(() => {
+    const fg = fgRef.current;
+    if (!fg) return;
+
+    let mounted = true;
+    const amplitude = 6;
+    const speed = 0.0015;
+
+    const animate = (t: number) => {
+      if (!mounted || !fg) return;
+      const nodes: MyNode[] = (fg as any).graphData().nodes as MyNode[];
 
       nodes.forEach((n, i) => {
-        // chaque nœud a un décalage unique pour le mouvement
-        const offset = i * 10;
-        n.x = (n.x ?? 0) + amp * Math.sin(t * speed + offset);
-        n.y = (n.y ?? 0) + amp * Math.cos(t * speed + offset);
+        if (n.__baseX === undefined) {
+          n.__baseX = n.x ?? 0;
+          n.__baseY = n.y ?? 0;
+        }
+
+        const phase = i * 15;
+        n.x = (n.__baseX ?? 0) + amplitude * Math.sin(t * speed + phase);
+        n.y = (n.__baseY ?? 0) + amplitude * Math.cos(t * speed * 1.8 + phase);
       });
 
-      fg.refresh(); // redessine le graphe
-    }
+      (fg as any)._needsRedraw = true; // redessin du canvas
+      requestAnimationFrame(animate);
+    };
 
-    requestAnimationFrame(raf);
+    requestAnimationFrame(animate);
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // 💧 Mouvement continu très léger uniquement pour les filiales
+useEffect(() => {
+  const fg = fgRef.current;
+  if (!fg) return;
+
+  let mounted = true;
+  const amplitude = 15; // intensité du flottement
+  const speed = 2; // vitesse très lente
+
+  const animate = (t: number) => {
+    if (!mounted || !fg) return;
+    const nodes: MyNode[] = (fg as any).graphData().nodes as MyNode[];
+
+    nodes.forEach((n) => {
+      if (n.type === "filiale") {
+        if (n.__baseX === undefined) {
+          n.__baseX = n.x ?? 0;
+          n.__baseY = n.y ?? 0;
+        }
+        n.x = (n.__baseX ?? 0) + amplitude * Math.sin(t * speed + n.id.length);
+        n.y = (n.__baseY ?? 0) + amplitude * Math.cos(t * speed + n.id.length);
+      }
+    });
+
+    (fg as any)._needsRedraw = true;
+    requestAnimationFrame(animate);
   };
 
-  const id = requestAnimationFrame(raf);
+  requestAnimationFrame(animate);
+
   return () => {
     mounted = false;
-    cancelAnimationFrame(id);
   };
 }, []);
 
-const drawNode = useCallback(
-  (node: NodeObject<MyNode>, ctx: CanvasRenderingContext2D, globalScale: number) => {
-    // Taille de texte fixe
-    const fontWeight = "bold";
-    const fontSize = node.type === "filiale" ? 20 : 14; // filiales un peu plus grandes
-    ctx.font = `${fontWeight} ${fontSize}px Inter, Arial, sans-serif`;
 
-    const label = node.name ?? "";
-    const textWidth = ctx.measureText(label).width;
-    const padding = 20; // espace autour du texte
-    const r = Math.max(node.r ?? 12, textWidth / 2 + padding); // cercle assez grand pour contenir le texte
+  // Dessin des nœuds
+  const drawNode = useCallback(
+    (node: NodeObject<MyNode>, ctx: CanvasRenderingContext2D, globalScale: number) => {
+      const isHovered = hoverNode && hoverNode.id === node.id;
+      const fontWeight = node.type === "filiale" ? "bold" : "normal";
+      const fontSize = node.type === "filiale" ? 20 : 14;
+      ctx.font = `${fontWeight} ${fontSize}px Inter, Arial, sans-serif`;
 
-    // Cercle
-    ctx.beginPath();
-    ctx.arc(node.x ?? 0, node.y ?? 0, r, 0, Math.PI * 2, false);
-    ctx.fillStyle = node.type === "filiale" ? "#009FE3" : "#256AFF";
-    ctx.fill();
-    ctx.strokeStyle = "rgba(0,0,0,0.1)";
-    ctx.lineWidth = 1;
-    ctx.stroke();
+      const label = node.name ?? "";
+      const textWidth = ctx.measureText(label).width;
+      const baseRadius = Math.max(node.r ?? 12, textWidth / 2 + 20);
 
-    // Texte
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText(label, node.x ?? 0, node.y ?? 0);
+      const breath = isHovered ? 1 + Math.sin(time * 0.005) * 0.1 : 0;
+      const r = baseRadius + breath * 5;
 
-    node.__r = r; // mettre à jour le rayon pour la force de collision
-  },
-  []
-);
+      ctx.beginPath();
+      ctx.arc(node.x ?? 0, node.y ?? 0, r, 0, Math.PI * 2, false);
+      ctx.fillStyle = node.type === "filiale" ? "#3DADFF" : "#2A60EA";
+      ctx.fill();
+      ctx.strokeStyle = "#294DA9";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
 
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(label, node.x ?? 0, node.y ?? 0);
+
+      node.__r = r;
+    },
+    [hoverNode, time]
+  );
 
   return (
     <div className="app-root" style={{ backgroundColor: "#ffffff" }}>
-      <div className="canvas-wrap" style={{ width: "100vw", height: "100vh" }}>
+      <motion.div
+        animate={{
+          y: [0, -12, 0],
+          x: [0, 6, 0],
+        }}
+        transition={{
+          duration: 10, // Mouvement lent
+          ease: "easeInOut",
+          repeat: Infinity,
+        }}
+        className="canvas-wrap"
+        style={{
+          width: "100vw",
+          height: "100vh",
+        }}
+      >
         <ForceGraph2D<MyNode, MyLink>
           ref={fgRef}
           graphData={data}
           backgroundColor="#ffffff"
           nodeCanvasObject={drawNode}
           nodeLabel=""
-          linkColor={() => "#009FE3"} // Couleur des liens assortie aux filiales
+          linkColor={() => "#294DA9"}
           linkWidth={() => 2}
-          linkLineDash={[2, 2]} // Style en pointillé pour les liens
+          linkLineDash={[2, 2]}
           nodePointerAreaPaint={(node, color, ctx) => {
             ctx.fillStyle = color;
             ctx.beginPath();
@@ -223,7 +272,7 @@ const drawNode = useCallback(
           d3VelocityDecay={0.2}
           onEngineStop={() => configureForces()}
         />
-      </div>
+      </motion.div>
 
       {selectedNode && (
         <div className="modal-overlay" onClick={() => setSelectedNode(null)}>
