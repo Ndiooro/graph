@@ -8,7 +8,7 @@ import "./Modal.css";
 import {
   forceCollide,
   forceManyBody,
-  forceCenter,
+  forceCenter, 
   forceX,
   forceY,
   forceLink,
@@ -18,7 +18,7 @@ import "./index.css";
 type MyNode = {
   id: string;
   name: string;
-  type?: "filiale" | "partenaire";
+  type?: "subsidiary" | "partner"; // Corrected type definition
   r?: number;
   info?: string;
    logo?: string; 
@@ -36,22 +36,22 @@ type MyLink = {
 
 const initialData = {
   nodes: [
-    // Filiales (au centre)
-    { id: "F1", name: "NSN", type: "filiale", r: 65 },
-    { id: "F2", name: "NFR", type: "filiale", r: 65 },
-    { id: "F3", name: "NSW", type: "filiale", r: 65 },
-    { id: "F5", name: "NSK", type: "filiale", r: 65 },
-    { id: "F6", name: "NSA", type: "filiale", r: 65 },
+    // Subsidiaries (at the center)
+    { id: "F1", name: "NSN", type: "subsidiary", r: 65 },
+    { id: "F2", name: "NFR", type: "subsidiary", r: 65 },
+    { id: "F3", name: "NSW", type: "subsidiary", r: 65 },
+    { id: "F5", name: "NSK", type: "subsidiary", r: 65 },
+    { id: "F6", name: "NUK", type: "subsidiary", r: 65 },
 
-    // Partenaires autour
-    { id: "P1", name: "Boost Aerospace", type: "partenaire", r: 30 },
-    { id: "P2", name: "GetVocal", type: "partenaire", r: 30 },
-    { id: "P3", name: "Zama", type: "partenaire", r: 30 },
-    { id: "P4", name: "Zozio", type: "partenaire", r: 30 },
-    { id: "P5", name: "Ekitia", type: "partenaire", r: 30 },
-    { id: "P6", name: "Nicomatic Sénégal", type: "partenaire", r: 30 },
-    { id: "P7", name: "Accurate", type: "partenaire", r: 30 },
-    { id: "P8", name: "WearTronic", type: "partenaire", r: 30 },
+    // Partners around
+    { id: "P1", name: "Boost Aerospace", type: "partner", r: 30 },
+    { id: "P2", name: "GetVocal", type: "partner", r: 30 },
+    { id: "P3", name: "Zama", type: "partner", r: 30 },
+    { id: "P4", name: "Zozio", type: "partner", r: 30 },
+    { id: "P5", name: "Ekitia", type: "partner", r: 30 },
+    { id: "P6", name: "Nicomatic Sénégal", type: "partner", r: 30 },
+    { id: "P7", name: "Accurate", type: "partner", r: 30 },
+    { id: "P8", name: "WearTronic", type: "partner", r: 30 },
   ] as MyNode[],
 
   links: [
@@ -106,32 +106,32 @@ export default function App(): JSX.Element {
     };
   }, []);
 
-  //Placement circulaire des filiales et partenaires (réduction de l’effet emmêlé)
+  // Circular placement of subsidiaries and partners (reduces tangled effect)
   useEffect(() => {
     const { nodes, links } = data;
-    const filiales = nodes.filter(n => n.type === "filiale");
+    const subsidiaries = nodes.filter(n => n.type === "subsidiary");
 
-    // 1. Placer les filiales sur un cercle plus grand pour mieux les espacer
-    const radiusFiliales = 250; // Augmenté pour plus d'espace
-    filiales.forEach((f, i) => {
-      const angle = (i / filiales.length) * 2 * Math.PI;
-      f.x = radiusFiliales * Math.cos(angle);
-      f.y = radiusFiliales * Math.sin(angle);
+    // 1. Place subsidiaries on a larger circle for better spacing
+    const radiusSubsidiaries = 250; // Increased for more space
+    subsidiaries.forEach((s, i) => {
+      const angle = (i / subsidiaries.length) * 2 * Math.PI;
+      s.x = radiusSubsidiaries * Math.cos(angle);
+      s.y = radiusSubsidiaries * Math.sin(angle);
     });
 
-    // 2. Placer les partenaires en orbite autour de CHAQUE filiale
-    filiales.forEach(filiale => {
+    // 2. Place partners in orbit around EACH subsidiary
+    subsidiaries.forEach(subsidiary => {
       const connectedPartners = links
-        .filter(l => l.source === filiale.id || l.target === filiale.id)
-        .map(l => (l.source === filiale.id ? l.target : l.source))
+        .filter(l => l.source === subsidiary.id || l.target === subsidiary.id)
+        .map(l => (l.source === subsidiary.id ? l.target : l.source))
         .map(id => nodes.find(n => n.id === id))
-        .filter(n => n?.type === 'partenaire') as MyNode[];
+        .filter(n => n?.type === 'partner') as MyNode[];
 
-      const radiusPartner = 150; // Distance par rapport à la filiale
+      const radiusPartner = 150; // Distance from the subsidiary
       connectedPartners.forEach((partner, i) => {
         const angle = (i / connectedPartners.length) * 2 * Math.PI;
-        partner.x = (filiale.x ?? 0) + radiusPartner * Math.cos(angle);
-        partner.y = (filiale.y ?? 0) + radiusPartner * Math.sin(angle);
+        partner.x = (subsidiary.x ?? 0) + radiusPartner * Math.cos(angle);
+        partner.y = (subsidiary.y ?? 0) + radiusPartner * Math.sin(angle);
       });
     });
   }, [data]);
@@ -144,11 +144,11 @@ export default function App(): JSX.Element {
 
     try {
       fg.d3Force("charge", forceManyBody().strength(-800)); // plus de répulsion
-      fg.d3Force("center", forceCenter());
+      fg.d3Force("center", forceCenter()); 
       fg.d3Force("x", forceX<MyNode>().strength(0.02));
       fg.d3Force("y", forceY<MyNode>().strength(0.02));
       fg.d3Force("collide", forceCollide<MyNode>().radius((d: any) => (d.r ?? 12) + 50).iterations(3));
-      fg.d3Force("link", forceLink<MyNode, MyLink>().id((d) => d.id).distance(200)); // liens plus longs
+      fg.d3Force("link", forceLink<MyNode, MyLink>().id((d) => d.id).distance(200)); // longer links
     } catch (err) {
       console.warn("Force config issue:", err);
     }
@@ -164,7 +164,7 @@ export default function App(): JSX.Element {
     if (fg) setTimeout(() => fg.zoomToFit(1200, 80), 800);
   }, []);
 
-  // Mouvement flottant léger sur les filiales
+  // Light floating movement on subsidiaries
   useEffect(() => {
     const fg = fgRef.current;
     if (!fg) return;
@@ -178,7 +178,7 @@ export default function App(): JSX.Element {
       const nodes: MyNode[] = (fg as any).graphData().nodes as MyNode[];
 
       nodes.forEach((n, i) => {
-        if (n.type === "filiale") {
+        if (n.type === "subsidiary") {
           if (n.__baseX === undefined) {
             n.__baseX = n.x ?? 0;
             n.__baseY = n.y ?? 0;
@@ -204,8 +204,8 @@ export default function App(): JSX.Element {
   const drawNode = useCallback(
     (node: NodeObject<MyNode>, ctx: CanvasRenderingContext2D, globalScale: number) => {
       const isHovered = hoverNode && hoverNode.id === node.id;
-      const fontWeight = node.type === "filiale" ? "bold" : "normal";
-      const fontSize = node.type === "filiale" ? 20 : 14;
+      const fontWeight = node.type === "subsidiary" ? "bold" : "normal";
+      const fontSize = node.type === "subsidiary" ? 20 : 14;
       ctx.font = `${fontWeight} ${fontSize}px Inter, Arial, sans-serif`;
 
       const label = node.name ?? "";
@@ -217,7 +217,7 @@ export default function App(): JSX.Element {
 
       ctx.beginPath();
       ctx.arc(node.x ?? 0, node.y ?? 0, r, 0, Math.PI * 2, false);
-      ctx.fillStyle = node.type === "filiale" ? "#3DADFF" : "#2A60EA";
+      ctx.fillStyle = node.type === "subsidiary" ? "#3DADFF" : "#2A60EA";
       ctx.fill();
       ctx.strokeStyle = "#8bd4ff90";
       ctx.lineWidth = 1.2;
@@ -268,49 +268,78 @@ export default function App(): JSX.Element {
   <div className="modal-overlay" onClick={() => setSelectedNode(null)}>
     <div className="modal-card" onClick={(e) => e.stopPropagation()}>
 
-    <div 
-      className="modal-header" 
-      style={{ display: 'flex', alignItems: 'center', gap: '15px' }}
-    >
-        {entitiesData[selectedNode.id]?.logo && (
-          <img
-            src={entitiesData[selectedNode.id].logo}
-            className="modal-logo"
-          />
-        )}
-        <h2 className="modal-title">{entitiesData[selectedNode.id].name}</h2>
       
-      </div>
-
-      <p className="modal-type"><strong></strong> {selectedNode.type}</p>
+        <div 
+          className="modal-header" 
+          style={{ display: 'flex', alignItems: 'center', gap: '15px' }}
+        >
+            {entitiesData[selectedNode.id]?.logo && (
+              <img
+                src={entitiesData[selectedNode.id].logo}
+                className="modal-logo"
+              />
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column' , gap: '1px'}}>
+              <h2 className="modal-title" style={{ margin: 0 }}>{entitiesData[selectedNode.id].name}</h2>
+              <p className="modal-type" style={{ margin: 0 }}>
+                  <strong></strong> {selectedNode.type}
+              </p>
+            </div>
+           
+        </div>
+        
+    
 
       <div className="modal-section">
         <h3>Description</h3>
-        <p>{entitiesData[selectedNode.id]?.description ?? "Pas de description."}</p>
+        <p>{entitiesData[selectedNode.id]?.description ?? "No description available."}</p>
       </div>
 
       <div className="modal-section">
         <h3>Services</h3>
-        <p>{entitiesData[selectedNode.id]?.services ?? "Pas de services."}</p>
+        {entitiesData[selectedNode.id]?.services ? (
+          <ul className="services-list">
+            {entitiesData[selectedNode.id].services.split(/, | and /).map((service, index) => (
+              <li key={index}>{service.charAt(0).toUpperCase() + service.slice(1)}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>No services listed.</p>
+        )}
       </div>
 
       <div className="modal-section">
-        <h3>Cas d'usage</h3>
-        <p>{entitiesData[selectedNode.id]?.useCases ?? "Pas de cas d'usage."}</p>
+        <h3>Use Cases</h3>
+        {entitiesData[selectedNode.id]?.useCases ? (
+          <ul className="services-list">
+            {entitiesData[selectedNode.id].useCases.split(/, | and /).map((item, index) => (
+              <li key={index}>{item.charAt(0).toUpperCase() + item.slice(1)}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>No use cases listed.</p>
+        )}
       </div>
 
         <div className="modal-section">
-        <h3>Marché</h3>
-        <p>{entitiesData[selectedNode.id]?.Market ?? "Pas de marché."}</p>
+        <h3>Market</h3>
+        {entitiesData[selectedNode.id]?.Market ? (
+          <ul className="services-list">
+            {entitiesData[selectedNode.id].Market.split(/, | and /).map((item, index) => (
+              <li key={index}>{item.charAt(0).toUpperCase() + item.slice(1)}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>No market information.</p>
+        )}
       </div>
-
       <button
         className="modal-button"
         onClick={() => {
-          alert("Redirection vers le formulaire d'authentification (à implémenter).");
+          alert("Redirecting to authentication form (to be implemented).");
         }}
       >
-        Voir les capacités
+        View Capabilities
       </button>
     </div>
   </div>
