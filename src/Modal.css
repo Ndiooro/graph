@@ -1,9 +1,8 @@
-/* overlay */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  backdrop-filter: blur(6px);
-  background: rgba(6, 23, 36, 0.4); /* Fond plus sombre et thématique */
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.57); 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,30 +15,29 @@
   to { opacity: 1; }
 }
 
-/* modal card */
+
 .modal-card {
-  background: rgba(255, 255, 255, 0.763);
-  backdrop-filter: blur(15px);
-  border-radius: 16px;
+  backdrop-filter: blur(30px) saturate(180%);
+ border-radius: 16px;
   padding: 30px 40px;
   width: 800px;
   max-width: 90%;
-  color: #061724;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.3); /* Ombre plus douce */
+  color: #ffffff;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Ombre plus douce */
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure effet verre */
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.7)); /* Dégradé subtil */
+  gap: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.18); /* Bordure effet verre */
+  background: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05)); /* Dégradé subtil */
   animation: slideIn 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 /* titles */
 .modal-title {
-  font-size: 28px;
-  color: #3DADFF;
-  margin: 0 0 10px 0;
-  text-align: left;
+  font-size: 40px;
+  color: #0b88e1;
+  margin: 0 0 5px 0;
+  text-align: center;
   font-weight: 700; /* Plus affirmé */
 }
 
@@ -50,7 +48,7 @@
 
 .modal-section h3 {
   font-size: 18px;
-  color: #3DADFF;
+  color: #09578F;
   margin-bottom: 5px;
   font-weight: 600; /* Moins fort que le titre principal */
   text-align: left;
@@ -60,13 +58,13 @@
   font-size: 14px;
   line-height: 1.5;
   text-align: left;
-  color: #061724;
+  color: #09578F;
   margin: 0;
 }
 
 /* buttons */
 .modal-button {
-  background-color: #3DADFF;
+  background-color: #0b88e1; 
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -78,32 +76,14 @@
 }
 
 .modal-button:hover {
-  background-color: #2a60ea; /* Un bleu plus vif au survol */
-  box-shadow: 0 4px 15px rgba(42, 96, 234, 0.4);
+  background-color: #0B88E1; /* Un bleu légèrement plus sombre et saturé */
+  box-shadow: 0 4px 15px rgba(37, 146, 215, 0.4);
   transform: translateY(-2px);
 }
-
-.modal-close {
-  background-color: #eef2f7; /* Fond clair */
-  color: #5a7a9b; /* Texte plus doux */
-  border: 1px solid #dbe4ee;
-  padding: 8px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  align-self: flex-start;
-  margin-top: 10px;
-  transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-  background-color: #dbe4ee;
-  border-color: #c8d5e3;
-  color: #061724;
-}
 .modal-type {
-  font-size: 18px;
-  color: #061724;
-  margin-bottom: 15px;
+  font-size: 24px;
+  color: #09578F;
+  margin-bottom: 5px;
   font-weight: bold;
   text-align: left;
 ;

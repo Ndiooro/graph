@@ -105,7 +105,7 @@ export default function App(): JSX.Element {
     };
   }, []);
 
-  // 💫 Placement circulaire des filiales et partenaires (réduction de l’effet emmêlé)
+  //Placement circulaire des filiales et partenaires (réduction de l’effet emmêlé)
   useEffect(() => {
     const { nodes, links } = data;
     const filiales = nodes.filter(n => n.type === "filiale");
@@ -163,7 +163,7 @@ export default function App(): JSX.Element {
     if (fg) setTimeout(() => fg.zoomToFit(1200, 80), 800);
   }, []);
 
-  // 🌊 Mouvement flottant léger sur les filiales
+  // Mouvement flottant léger sur les filiales
   useEffect(() => {
     const fg = fgRef.current;
     if (!fg) return;
@@ -199,7 +199,7 @@ export default function App(): JSX.Element {
     };
   }, []);
 
-  // 🎨 Dessin des nœuds
+  // Dessin des nœuds
   const drawNode = useCallback(
     (node: NodeObject<MyNode>, ctx: CanvasRenderingContext2D, globalScale: number) => {
       const isHovered = hoverNode && hoverNode.id === node.id;
@@ -280,8 +280,13 @@ export default function App(): JSX.Element {
       </div>
 
       <div className="modal-section">
-        <h3>Cas d'usage & Marché</h3>
+        <h3>Cas d'usage</h3>
         <p>{entitiesData[selectedNode.id]?.useCases ?? "Pas de cas d'usage."}</p>
+      </div>
+
+        <div className="modal-section">
+        <h3>Marché</h3>
+        <p>{entitiesData[selectedNode.id]?.Market ?? "Pas de marché."}</p>
       </div>
 
       <button
