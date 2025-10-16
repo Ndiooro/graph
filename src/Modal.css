@@ -26,7 +26,7 @@
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Ombre plus douce */
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
   border: 1px solid rgba(255, 255, 255, 0.18); /* Bordure effet verre */
   background: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05)); /* Dégradé subtil */
   animation: slideIn 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -46,25 +46,42 @@
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+
 .modal-section h3 {
-  font-size: 18px;
-  color: #09578F;
+  font-size: 20px;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #086EB6;
   margin-bottom: 5px;
-  font-weight: 600; /* Moins fort que le titre principal */
+  font-weight: bold;
   text-align: left;
+}
+.modal-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3DADFF;
+  background-color: #fff;
 }
 
 .modal-section p {
   font-size: 14px;
   line-height: 1.5;
   text-align: left;
-  color: #09578F;
+  color: #086EB6;
   margin: 0;
 }
 
 /* buttons */
 .modal-button {
-  background-color: #0b88e1; 
+  background-color: #0b88e1 !important; 
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -73,17 +90,19 @@
   font-weight: bold;
   align-self: flex-start;
   transition: all 0.2s ease;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .modal-button:hover {
-  background-color: #0B88E1; /* Un bleu légèrement plus sombre et saturé */
-  box-shadow: 0 4px 15px rgba(37, 146, 215, 0.4);
+  background-color: #086EB6; /* Un bleu légèrement plus sombre et saturé */
+  box-shadow: 0 4px 15px rgba(118, 190, 235, 0.4);
   transform: translateY(-2px);
 }
 .modal-type {
   font-size: 24px;
-  color: #09578F;
+  color: #086EB6;
   margin-bottom: 5px;
+  margin-top: 5px;
   font-weight: bold;
   text-align: left;
 ;

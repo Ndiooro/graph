@@ -21,6 +21,7 @@ type MyNode = {
   type?: "filiale" | "partenaire";
   r?: number;
   info?: string;
+   logo?: string; 
   __r?: number;
   x?: number;
   y?: number;
@@ -266,8 +267,22 @@ export default function App(): JSX.Element {
   {selectedNode && (
   <div className="modal-overlay" onClick={() => setSelectedNode(null)}>
     <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-      <h2 className="modal-title">{selectedNode.name}</h2>
-      <p className="modal-type"><strong>Type :</strong> {selectedNode.type}</p>
+
+    <div 
+      className="modal-header" 
+      style={{ display: 'flex', alignItems: 'center', gap: '15px' }}
+    >
+        {entitiesData[selectedNode.id]?.logo && (
+          <img
+            src={entitiesData[selectedNode.id].logo}
+            className="modal-logo"
+          />
+        )}
+        <h2 className="modal-title">{entitiesData[selectedNode.id].name}</h2>
+      
+      </div>
+
+      <p className="modal-type"><strong></strong> {selectedNode.type}</p>
 
       <div className="modal-section">
         <h3>Description</h3>
