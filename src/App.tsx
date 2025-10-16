@@ -260,7 +260,6 @@ export default function App(): JSX.Element {
           onNodeClick={setSelectedNode}
           cooldownTicks={300}
           d3VelocityDecay={0.2}
-          onEngineStop={() => configureForces()}
         />
       </motion.div>
 

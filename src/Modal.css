@@ -139,3 +139,35 @@
   text-align: left;
 ;
 }
+
+/* --- Custom Scrollbar (Webkit & Firefox) --- */
+
+/* Chrome, Edge, Safari */
+.modal-card::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal-card::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+}
+
+.modal-card::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(11, 136, 225, 0.9), rgba(8, 110, 182, 0.9));
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.3);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.modal-card::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(29, 161, 242, 1), rgba(11, 136, 225, 1));
+  box-shadow: 0 0 10px rgba(29, 161, 242, 0.7);
+}
+
+/* Firefox */
+.modal-card {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(6, 98, 164, 0.556) rgba(255, 255, 255, 0.15);
+}
